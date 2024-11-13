@@ -1,0 +1,31 @@
+﻿@model List<(DataTest.Data.OneHouseHoldData24hrs Data, double Cost)>
+
+@{
+    ViewData["Title"] = "Energiförbrukning och Kostnad för Ett Hushåll (24 Timmar)";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>Total elkostnad: @ViewData["TotalCost"] kr</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Datum och Tid</th>
+            <th>Aktiv Energi (kWh)</th>
+            <th>Kostnad (kr)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Data.AtDateTime</td>
+                <td>@item.Data.ActiveEnergyOutlet</td>
+                <td>@item.Cost</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

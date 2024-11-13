@@ -1,0 +1,45 @@
+﻿@model DataTest.ViewModel.ApplianceCostViewModel
+
+@{
+    ViewData["Title"] = "Calculate Appliance Cost";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="CalculateCost" method="post">
+    <div class="form-group">
+        <label for="Appliance">Select Appliance:</label>
+        <select asp-for="SelectedAppliance" class="form-control">
+            @foreach (var appliance in Model.AvailableAppliances)
+            {
+                <option value="@appliance.Name">@appliance.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="StartTime">Start Time:</label>
+        <input asp-for="StartTime" class="form-control" type="datetime-local" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+    </div>
+    <div class="form-group">
+        <label for="Hours">Usage Duration (hours):</label>
+        <input asp-for="Hours" class="form-control" type="range" min="1" max="24" value="1" id="hoursSlider" />
+        <span id="hoursValue">1</span> hours
+    </div>
+    <button type="submit" class="btn btn-primary">Calculate Cost</button>
+</form>
+
+@if (Model.TotalCost.HasValue)
+{
+    <h3>Total Cost: @Model.TotalCost.Value.ToString("C")</h3>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('hoursSlider').addEventListener('input', function () {
+            document.getElementById('hoursValue').textContent = this.value;
+        });
+    </script>
+}
+
+
+
