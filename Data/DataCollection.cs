@@ -9,10 +9,5 @@
         {
             return OneHouseHold24HrsCollection.Where(d => d.AtDateTime >= start && d.AtDateTime <= end).ToList();
         }
-
-        public List<OneHouseHoldData24hrs> FilterByHushåll(int id)
-        {
-            return OneHouseHold24HrsCollection.Where(d => d.ResourceId == id).ToList();
-        }
     }
 }

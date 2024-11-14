@@ -10,6 +10,8 @@ builder.Services.AddScoped<ApplianceCostCalculator>();
 
 builder.Services.AddSession();
 // Add services to the container.
+
+builder.Services.AddHttpClient<ElectricityPriceService>();
 builder.Services.AddControllersWithViews();
 
 

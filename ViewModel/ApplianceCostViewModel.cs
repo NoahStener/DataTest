@@ -11,6 +11,8 @@ namespace DataTest.ViewModel
         public int Minutes { get; set; }
         public double? TotalCost { get; set; }
         public List<Activity> Activities { get; set; } = new List<Activity>();
+        public List<ElectricityPrice> ElectricityPrices { get; set; } = new List<ElectricityPrice>();
+
         public class Activity
         {
             public string ApplianceName { get; set; }
@@ -20,5 +22,6 @@ namespace DataTest.ViewModel
             public double Cost { get; set; }
         }
     }
+
 
 }

@@ -17,13 +17,13 @@ namespace DataTest.Controllers
 
         private readonly DataManipulator _dataManipulator;
 
-        public IActionResult OneHousehold24Hours()
-        {
-            var dataWithCost = _dataManipulator.GetDataWithCostForOneHousehold24Hours();
-            double totalCost = _dataManipulator.GetTotalCostForOneHousehold24Hours();
+        //public IActionResult OneHousehold24Hours()
+        //{
+        //    var dataWithCost = _dataManipulator.GetDataWithCostForOneHousehold24Hours();
+        //    double totalCost = _dataManipulator.GetTotalCostForOneHousehold24Hours();
 
-            ViewData["TotalCost"] = totalCost;
-            return View(dataWithCost); // Skicka listan med kostnad som modell till vyn
-        }
+        //    ViewData["TotalCost"] = totalCost;
+        //    return View(dataWithCost); // Skicka listan med kostnad som modell till vyn
+        //}
     }
 }

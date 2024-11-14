@@ -32,22 +32,22 @@ namespace DataTest.Data
             return data24Hours.Sum(d => d.ActiveEnergyOutlet);
         }
 
-        public List<(OneHouseHoldData24hrs Data, double Cost)> GetDataWithCostForOneHousehold24Hours()
-        {
-            var data24Hours = _csvReader.ReadDataFromOneHouseHoldTwentyFourHours();
+        //public List<(OneHouseHoldData24hrs Data, double Cost)> GetDataWithCostForOneHousehold24Hours()
+        //{
+        //    var data24Hours = _csvReader.ReadDataFromOneHouseHoldTwentyFourHours();
 
-            // Calculate cost for each data row
-            var dataWithCost = data24Hours
-                .Select(d => (Data: d, Cost: _applianceCostCalculator.CalculateApplianceCost(d.AtDateTime, 1, d.ActiveEnergyOutlet)))
-                .ToList();
+        //    // Calculate cost for each data row
+        //    var dataWithCost = data24Hours
+        //        .Select(d => (Data: d, Cost: _applianceCostCalculator.CalculateApplianceCost(d.AtDateTime, 1, d.ActiveEnergyOutlet)))
+        //        .ToList();
 
-            return dataWithCost;
-        }
+        //    return dataWithCost;
+        //}
 
-        public double GetTotalCostForOneHousehold24Hours()
-        {
-            var dataWithCost = GetDataWithCostForOneHousehold24Hours();
-            return dataWithCost.Sum(d => d.Cost);
-        }
+        //public double GetTotalCostForOneHousehold24Hours()
+        //{
+        //    var dataWithCost = GetDataWithCostForOneHousehold24Hours();
+        //    return dataWithCost.Sum(d => d.Cost);
+        //}
     }
 }

@@ -1,45 +1,43 @@
-﻿namespace DataTest.Services
-{
+﻿using DataTest.Models;
+using System;
+using System.Collections.Generic;
 
+namespace DataTest.Services
+{
     public class ApplianceCostCalculator
     {
-        // Price in SEK per kWh during peak and off-peak hours
-        private readonly double peakHourPricePerKwh = 2.5;
-        private readonly double offPeakHourPricePerKwh = 1.2;
-
         // Method to calculate the cost of running an appliance for a certain period
-        public double CalculateApplianceCost(DateTime startTime, int hours, double appliancePowerInWatts)
+        public double CalculateApplianceCost(DateTime startTime, int hours, int minutes, double appliancePowerInWatts, List<ElectricityPrice> electricityPrices)
         {
             double totalCost = 0.0;
             DateTime currentTime = startTime;
 
+            // Loopa igenom timmarna och hämta priset för varje timme från API-datan
             for (int i = 0; i < hours; i++)
             {
-                double pricePerKwh = CalculateEnergyCost(currentTime);
-                double hourlyEnergyConsumptionInKwh = appliancePowerInWatts / 1000.0; // Convert watts to kWh
-                double hourlyCost = hourlyEnergyConsumptionInKwh * pricePerKwh; // Cost per hour based on kWh
-                totalCost += hourlyCost;
-
-                // Increase the time by one hour
+                var priceData = electricityPrices.Find(p => p.Time.Hour == currentTime.Hour);
+                double pricePerKwh = priceData?.Price ?? 0.4; // Default-pris om ingen data finns
+                double hourlyEnergyConsumptionInKwh = appliancePowerInWatts / 1000.0;
+                totalCost += hourlyEnergyConsumptionInKwh * pricePerKwh;
                 currentTime = currentTime.AddHours(1);
+            }
+
+            // Lägg till kostnad för eventuella kvarvarande minuter
+            if (minutes > 0)
+            {
+                var minutePriceData = electricityPrices.Find(p => p.Time.Hour == currentTime.Hour);
+                double minutePricePerKwh = minutePriceData?.Price ?? 0.4;
+                double energyConsumptionPerMinuteInKwh = (appliancePowerInWatts / 1000.0) / 60.0;
+                totalCost += energyConsumptionPerMinuteInKwh * minutes * minutePricePerKwh;
             }
 
             return totalCost;
         }
-
-        // Method to calculate the energy cost based on time
-        public double CalculateEnergyCost(DateTime dateTime)
-        {
-            return IsPeakHours(dateTime) ? peakHourPricePerKwh : offPeakHourPricePerKwh;
-        }
-
-        // Helper method to determine if a time is during peak hours
-        public bool IsPeakHours(DateTime dateTime)
-        {
-            var hour = dateTime.Hour;
-            return hour >= 6 && hour < 22;
-        }
     }
-
-
 }
+
+
+
+
+
+

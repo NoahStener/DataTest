@@ -16,20 +16,20 @@ namespace DataTest.Data
             return csv.GetRecords<OneHouseHoldData24hrs>().ToList();
         }
 
-        // Metod för att läsa veckodata för flera hushåll
-        public List<OneHouseHoldDataOneWeek> ReadDataFromOneHouseHoldOneWeek()
-        {
-            using var reader = new StreamReader(file1Week);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            return csv.GetRecords<OneHouseHoldDataOneWeek>().ToList();
-        }
+        //// Metod för att läsa veckodata för flera hushåll
+        //public List<OneHouseHoldDataOneWeek> ReadDataFromOneHouseHoldOneWeek()
+        //{
+        //    using var reader = new StreamReader(file1Week);
+        //    using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        //    return csv.GetRecords<OneHouseHoldDataOneWeek>().ToList();
+        //}
 
-        // Metod för att läsa dagsdata för ett hushåll
-        public List<TenHouseHoldsOneWeekData> ReadDataFromTenHouseHoldsOneWeek()
-        {
-            using var reader = new StreamReader(file10Households);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            return csv.GetRecords<TenHouseHoldsOneWeekData>().ToList();
-        }
+        //// Metod för att läsa dagsdata för ett hushåll
+        //public List<TenHouseHoldsOneWeekData> ReadDataFromTenHouseHoldsOneWeek()
+        //{
+        //    using var reader = new StreamReader(file10Households);
+        //    using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        //    return csv.GetRecords<TenHouseHoldsOneWeekData>().ToList();
+        //}
     }
 }

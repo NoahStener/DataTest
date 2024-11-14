@@ -1,4 +1,5 @@
-﻿@model DataTest.ViewModel.ApplianceCostViewModel
+﻿@using Newtonsoft.Json
+@model DataTest.ViewModel.ApplianceCostViewModel
 
 @{
     ViewData["Title"] = "Calculate Appliance Cost";
@@ -6,14 +7,31 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<!-- Formulär för att välja appliance, starttid och varaktighet -->
+<div class="price-chart-container">
+    <div class="price-chart">
+        @foreach (var price in Model.ElectricityPrices)
+        {
+            string priceClass = price.Price <= 0.2 ? "low" : (price.Price <= 0.4 ? "moderate" : "high");
+            <div class="price-bar @priceClass" title="@price.Time: @price.Price SEK/kWh" style="height:@GetHeatHeight(price.Price);background-color:@GetHeatColor(price.Price);">
+                @price.Time.ToString("HH:mm")
+            </div>
+        }
+    </div>
+    <input type="range" min="0" max="23" value="0" id="startTimeSlider" class="transparent-slider" onchange="updateStartTime()">
+    <span id="startTimeDisplay" class="time-label">Start Time: 00:00</span>
+    <input type="hidden" asp-for="StartTime" id="hiddenStartTime" />
+</div>
+
+<!-- Appliance Selection -->
 <div class="appliance-selection">
-    <label>Välj Aktivitet:</label>
-    <div class="appliance-images">
+    <h4>Select Appliance:</h4>
+    <div class="appliance-grid">
         @foreach (var appliance in Model.AvailableAppliances)
         {
-            <img src="@appliance.ImageUrl" alt="@appliance.Name" class="appliance-image"
-                 data-power="@appliance.PowerInWatts" onclick="selectAppliance('@appliance.Name', @appliance.PowerInWatts)" />
+            <div class="appliance-item" onclick="selectAppliance('@appliance.Name', @appliance.PowerInWatts)">
+                <img src="@appliance.ImageUrl" alt="@appliance.Name" class="appliance-image" />
+                <p>@appliance.Name</p>
+            </div>
         }
     </div>
 </div>
@@ -21,20 +39,14 @@
 <form asp-action="CalculateCost" method="post" id="costForm">
     <input type="hidden" asp-for="SelectedAppliance" id="selectedAppliance" />
 
-    <div class="form-group">
-        <label for="StartTime">Start Time:</label>
-        <input type="range" min="0" max="23" value="0" id="startTimeSlider" class="form-control" onchange="updateStartTime()">
-        <span id="startTimeDisplay">00:00</span>
-        <input type="hidden" asp-for="StartTime" id="hiddenStartTime" />
-    </div>
-
-    <div class="form-group">
-        <label for="Hours">Usage Duration:</label>
-        <input asp-for="Hours" class="form-control" type="range" min="0" max="24" value="0" id="hoursSlider" />
-        <span id="hoursValue">0</span> hours
-
-        <input type="range" min="0" max="59" value="0" id="minutesSlider" class="form-control" onchange="updateTotalCost()">
-        <span id="minutesValue">0</span> minutes
+    <div class="form-group duration-container">
+        <label>Duration:</label>
+        <div class="slider-group">
+            <input asp-for="Hours" class="form-control transparent-slider" type="range" min="0" max="24" value="0" id="hoursSlider" />
+            <span id="hoursValue" class="time-label">0 hours</span>
+            <input asp-for="Minutes" class="form-control transparent-slider" type="range" min="0" max="59" value="0" id="minutesSlider" />
+            <span id="minutesValue" class="time-label">0 minutes</span>
+        </div>
     </div>
 
     <h3>Total Cost: <span id="totalCost">0</span> SEK</h3>
@@ -44,12 +56,12 @@
 @if (Model.Activities != null && Model.Activities.Any())
 {
     <h3>Activities</h3>
-    <div id="activityList">
+    <div id="activityList" class="activity-list">
         @foreach (var activity in Model.Activities)
         {
             <div class="activity-card">
                 <h4>@activity.ApplianceName</h4>
-                <p>Duration: @activity.Hours h @activity.Minutes m</p> <!-- Visar både timmar och minuter -->
+                <p>Duration: @activity.Hours h @activity.Minutes m</p>
                 <p>Start Time: @activity.StartTime.ToString("HH:mm")</p>
                 <p>Cost: @activity.Cost.ToString("C")</p>
             </div>
@@ -59,91 +71,97 @@
 
 @section Scripts {
     <script>
-        let selectedAppliancePower = 0;
+        document.addEventListener("DOMContentLoaded", function () {
+            let selectedAppliancePower = 0;
+            const electricityPrices = @Html.Raw(JsonConvert.SerializeObject(Model.ElectricityPrices));
 
-        function selectAppliance(name, power) {
-            document.getElementById('selectedAppliance').value = name;
-            selectedAppliancePower = power;
-            updateTotalCost();
-        }
-
-        function updateStartTime() {
-            const startTimeSlider = document.getElementById('startTimeSlider');
-            const startTimeDisplay = document.getElementById('startTimeDisplay');
-            const hour = startTimeSlider.value.padStart(2, '0');
-            startTimeDisplay.textContent = `${hour}:00`;
-
-            const startDateTime = new Date();
-            startDateTime.setHours(hour);
-            startDateTime.setMinutes(0);
-            document.getElementById('hiddenStartTime').value = startDateTime.toISOString();
-            updateTotalCost();
-        }
-
-        document.getElementById('hoursSlider').addEventListener('input', function () {
-            document.getElementById('hoursValue').textContent = this.value;
-            updateTotalCost();
-        });
-
-        document.getElementById('minutesSlider').addEventListener('input', function () {
-            document.getElementById('minutesValue').textContent = this.value;
-            updateTotalCost();
-        });
-
-        function updateTotalCost() {
-            const hours = parseInt(document.getElementById('hoursSlider').value);
-            const minutes = parseInt(document.getElementById('minutesSlider').value);
-            const peakHourPrice = 2.5;
-            const offPeakHourPrice = 1.2;
-
-            let totalCost = 0;
-            let startTime = new Date(document.getElementById('hiddenStartTime').value);
-
-            // Beräkna kostnaden för hela timmar
-            for (let i = 0; i < hours; i++) {
-                const hour = startTime.getHours();
-                const pricePerKwh = (hour >= 6 && hour < 22) ? peakHourPrice : offPeakHourPrice;
-                const hourlyEnergyConsumptionInKwh = selectedAppliancePower / 1000;
-                totalCost += hourlyEnergyConsumptionInKwh * pricePerKwh;
-                startTime.setHours(startTime.getHours() + 1);
+            function selectAppliance(name, power) {
+                document.getElementById('selectedAppliance').value = name;
+                selectedAppliancePower = power;
+                updateTotalCost();
             }
 
-            // Beräkna kostnaden för resterande minuter
-            const pricePerKwh = (startTime.getHours() >= 6 && startTime.getHours() < 22) ? peakHourPrice : offPeakHourPrice;
-            const energyConsumptionPerMinuteInKwh = (selectedAppliancePower / 1000) / 60;
-            totalCost += energyConsumptionPerMinuteInKwh * minutes * pricePerKwh;
+            function updateStartTime() {
+                const startTimeSlider = document.getElementById('startTimeSlider');
+                const startTimeDisplay = document.getElementById('startTimeDisplay');
+                const hour = startTimeSlider.value.padStart(2, '0');
+                startTimeDisplay.textContent = `Start Time: ${hour}:00`;
 
-            document.getElementById('totalCost').textContent = totalCost.toFixed(2);
-        }
+                const startDateTime = new Date();
+                startDateTime.setHours(hour);
+                startDateTime.setMinutes(0);
+                document.getElementById('hiddenStartTime').value = startDateTime.toISOString();
+                updateTotalCost();
+            }
 
-        // Initiera starttid
-        updateStartTime();
+            document.getElementById('hoursSlider').addEventListener('input', function () {
+                document.getElementById('hoursValue').textContent = `${this.value} hours`;
+                updateTotalCost();
+            });
+
+            document.getElementById('minutesSlider').addEventListener('input', function () {
+                document.getElementById('minutesValue').textContent = `${this.value} minutes`;
+                updateTotalCost();
+            });
+
+            function updateTotalCost() {
+                const hours = parseInt(document.getElementById('hoursSlider').value);
+                const minutes = parseInt(document.getElementById('minutesSlider').value);
+                let totalCost = 0;
+                let startTime = new Date(document.getElementById('hiddenStartTime').value);
+
+                for (let i = 0; i < hours; i++) {
+                    const hour = startTime.getHours();
+                    const priceData = electricityPrices.find(p => new Date(p.Time).getHours() === hour);
+                    const pricePerKwh = priceData ? priceData.Price : 0.4;
+                    const hourlyEnergyConsumptionInKwh = selectedAppliancePower / 1000;
+                    totalCost += hourlyEnergyConsumptionInKwh * pricePerKwh;
+                    startTime.setHours(startTime.getHours() + 1);
+                }
+
+                const priceDataForMinutes = electricityPrices.find(p => new Date(p.Time).getHours() === startTime.getHours());
+                const pricePerKwhForMinutes = priceDataForMinutes ? priceDataForMinutes.Price : 0.4;
+                const energyConsumptionPerMinuteInKwh = (selectedAppliancePower / 1000) / 60;
+                totalCost += energyConsumptionPerMinuteInKwh * minutes * pricePerKwhForMinutes;
+
+                document.getElementById('totalCost').textContent = totalCost.toFixed(2);
+            }
+
+            updateStartTime();
+        });
     </script>
 }
 
-<style>
-    .appliance-selection {
-        margin-bottom: 15px;
-    }
-
-    .appliance-images img {
-        width: 100px;
-        height: 100px;
-        margin: 5px;
-        cursor: pointer;
-        border: 2px solid transparent;
-        border-radius: 8px;
-    }
-
-        .appliance-images img:hover, .appliance-images img.selected {
-            border-color: blue;
+@functions {
+    private string GetHeatColor(double price)
+    {
+        if (price <= 0.2)
+        {
+            return "#4CAF50";
         }
-
-    .activity-card {
-        border: 1px solid #ddd;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
-        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+        else if (price <= 0.4)
+        {
+            return "#FFC107";
+        }
+        else
+        {
+            return "#F44336";
+        }
     }
-</style>
+
+    private string GetHeatHeight(double price)
+    {
+        if (price <= 0.2)
+        {
+            return "50px";
+        }
+        else if (price <= 0.4)
+        {
+            return "75px";
+        }
+        else
+        {
+            return "100px";
+        }
+    }
+}
