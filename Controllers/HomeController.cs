@@ -9,29 +9,32 @@ namespace DataTest.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly EnergyAnalysisService _energyAnalysisService;
+        private readonly DataProcessor _dataProcessor;
+        private readonly ElectricityPriceService _electricityPriceService;
 
-        public HomeController(ILogger<HomeController> logger, EnergyAnalysisService energyAnalysisService)
+        public HomeController(DataProcessor dataProcessor, ElectricityPriceService electricityPriceService)
         {
-            _logger = logger;
-            _energyAnalysisService = energyAnalysisService;
+            _dataProcessor = dataProcessor;
+            _electricityPriceService = electricityPriceService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            // Hämta energiförbrukning för att visa på startsidan
+            var dailyConsumption = _dataProcessor.GetDailyEnergyConsumption();
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            // Hämta aktuellt elpris
+            var currentPrices = await _electricityPriceService.GetHourlyElectricityPricesAsync("SE3");
+            var currentPrice = currentPrices.FirstOrDefault()?.Price ?? 0;
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // Skicka datan till vyn
+            var model = new HomeViewModel
+            {
+                DailyConsumption = dailyConsumption,
+                CurrentElectricityPrice = currentPrice
+            };
+
+            return View(model);
         }
     }
 }

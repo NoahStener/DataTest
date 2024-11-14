@@ -27,14 +27,13 @@
     <input type="hidden" asp-for="StartTime" id="hiddenStartTime" />
 </div>
 
-<!-- Appliance Selection -->
 <div class="appliance-selection">
+    <h4 class="appliance-title">Choose an Appliance</h4>
     <div class="appliance-grid">
         @foreach (var appliance in Model.AvailableAppliances)
         {
-            <div class="appliance-item" onclick="window.selectAppliance('@appliance.Name', @appliance.PowerInWatts)">
+            <div class="appliance-item" onclick="window.selectAppliance('@Html.Raw(appliance.Name)', @appliance.PowerInWatts, this)">
                 <img src="@appliance.ImageUrl" alt="@appliance.Name" class="appliance-image" />
-                <p>@appliance.Name</p>
             </div>
         }
     </div>
@@ -54,6 +53,7 @@
     </div>
 
     <h3>Total Cost: <span id="totalCost">0</span> SEK</h3>
+    <p class="info-text">Set the start time, duration, and appliance type, then click "Add Activity" to calculate and save.</p>
     <button type="submit" class="btn btn-primary">Add Activity</button>
 </form>
 

@@ -1,10 +1,28 @@
 ﻿@using Newtonsoft.Json
 @model List<DailyEnergyConsumption>
 
-<h2>Weekly Energy Consumption Overview</h2>
+<h2 class="page-title">Weekly Energy Consumption Overview</h2>
 
-<div style="width: 80%; margin: 0 auto;">
-    <canvas id="energyChart"></canvas>
+<div class="content-container">
+    <p class="summary-text">Here's an overview of your household's energy consumption over the past week. See if there are specific days with higher usage, and discover how you might adjust your usage to save on energy costs.</p>
+
+    <!-- Sammanfattning av förbrukningen -->
+    <div class="summary-container">
+        <p><strong>Total Consumption This Week:</strong> @Model.Sum(d => d.TotalEnergyOutlet).ToString("0.##") kWh</p>
+        <p><strong>Average Daily Consumption:</strong> @Model.Average(d => d.TotalEnergyOutlet).ToString("0.##") kWh</p>
+        <p><strong>Highest Daily Consumption:</strong> @Model.OrderByDescending(d => d.TotalEnergyOutlet).First().TotalEnergyOutlet.ToString("0.##") kWh</p>
+    </div>
+
+    <div style="width: 80%; margin: 0 auto;">
+        <canvas id="energyChart"></canvas>
+    </div>
+
+    <!-- Uppmuntran till vidare analys -->
+    <div class="analysis-prompt">
+        <h4>Want to Reduce Your Energy Costs?</h4>
+        <p>By checking hourly electricity prices and adjusting your usage times, you can save on energy costs. Click the button below to explore our cost analysis tool and find the best times to use your appliances.</p>
+        <a href="@Url.Action("CalculateCost", "Appliance")" class="btn btn-primary">Explore Cost Analysis Tool</a>
+    </div>
 </div>
 
 @section Scripts {

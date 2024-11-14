@@ -5,7 +5,7 @@ namespace DataTest.ViewModel
 {
     public class HomeViewModel
     {
-        public List<OneHouseHoldDataOneWeek> HouseHoldData { get; set; }
-        public double TotalEnergyConsumption { get; set; }
+        public List<DailyEnergyConsumption> DailyConsumption { get; set; }
+        public double CurrentElectricityPrice { get; set; }
     }
 }

@@ -2,20 +2,14 @@
     let selectedAppliancePower = 0;
     const electricityPrices = JSON.parse(document.getElementById('electricityPricesData').textContent);
 
-    function selectAppliance(name, power) {
-        // Ta bort "selected" från alla andra appliance-items
+    function selectAppliance(name, power, element) {
+        // Ta bort "selected" från alla appliance-items
         document.querySelectorAll('.appliance-item').forEach(item => {
             item.classList.remove('selected');
         });
 
-        // Hitta och markera den valda appliance-item
-        const selectedElement = Array.from(document.querySelectorAll('.appliance-item')).find(item =>
-            item.querySelector('p').textContent === name
-        );
-
-        if (selectedElement) {
-            selectedElement.classList.add('selected');
-        }
+        // Lägg till "selected" på det valda elementet
+        element.classList.add('selected');
 
         // Sätt vald appliance och uppdatera kostnaden
         document.getElementById('selectedAppliance').value = name;
@@ -35,7 +29,7 @@
         updateTotalCost();
     }
 
-    // Lägg till eventlyssnare för att uppdatera visningen av timmar och minuter
+    // Eventlyssnare för uppdatering av timmar och minuter
     document.getElementById('hoursSlider').addEventListener('input', function () {
         document.getElementById('hoursValue').textContent = `${this.value} hours`;
         updateTotalCost();

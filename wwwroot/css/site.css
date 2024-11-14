@@ -46,25 +46,49 @@ body {
 
 .price-bar {
     flex: 1;
-    transition: height 0.3s ease, background-color 0.3s ease;
+    transition: height 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
     display: inline-block;
     margin: 0 1px;
+    border-radius: 5px; /* Rundade hörn */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Lätt skugga för djup */
 }
 
     .price-bar.low {
-        background-color: rgba(76, 175, 80, 0.6);
-        height: 30%;
+        background: linear-gradient(180deg, rgba(76, 175, 80, 0.8), rgba(76, 175, 80, 0.5)); /* Grön gradient */
+        height: 30%; /* Höjden kan anpassas dynamiskt */
     }
 
     .price-bar.moderate {
-        background-color: rgba(255, 193, 7, 0.6);
+        background: linear-gradient(180deg, rgba(255, 193, 7, 0.8), rgba(255, 193, 7, 0.5)); /* Gul gradient */
         height: 60%;
     }
 
     .price-bar.high {
-        background-color: rgba(244, 67, 54, 0.6);
+        background: linear-gradient(180deg, rgba(244, 67, 54, 0.8), rgba(244, 67, 54, 0.5)); /* Röd gradient */
         height: 90%;
     }
+
+    .price-bar:hover {
+        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Starkare skugga vid hover */
+        cursor: pointer;
+        position: relative;
+    }
+
+        .price-bar:hover::after {
+            content: attr(title); /* Använd titeln som tooltip-text */
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
 
 /* Time Label */
 .time-label {
@@ -78,7 +102,7 @@ body {
 /* Transparent Slider */
 .transparent-slider {
     -webkit-appearance: none;
-    width: auto;
+    width: 100%;
     height: 8px;
     background: #ddd;
     border-radius: 5px;
@@ -105,7 +129,7 @@ body {
 .appliance-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(auto, 150px)); /* Två kolumner med en maxbredd */
-    gap: 10px; /* Mindre mellanrum mellan varje item */
+    gap: 20px; /* Mindre mellanrum mellan varje item */
     justify-content: center; /* Centrerar hela grid-layouten */
 }
 
@@ -129,9 +153,7 @@ body {
 
 .appliance-image {
     width: 100%;
-    height: auto;
-    max-width: 100px; /* Sätter en maxbredd för bilden */
-    max-height: 100px; /* Sätter en maxhöjd för bilden */
+    height: 100%;
     object-fit: cover;
     border-radius: 8px;
     margin: 0 auto; /* Centrerar bilden inom item */
@@ -154,6 +176,13 @@ body {
     font-size: 14px;
 }
 
+.appliance-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
 
 /* Duration Container */
 .duration-container {
@@ -204,3 +233,178 @@ button.btn-primary {
     button.btn-primary:hover {
         background-color: #0056b3;
     }
+
+/* General styling */
+.content-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Summary section */
+.summary-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+    .summary-container p {
+        margin: 5px 0;
+        font-size: 16px;
+        color: #333;
+    }
+
+/* Analysis prompt */
+.analysis-prompt {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #007bff;
+    border-radius: 8px;
+    background-color: #e7f3ff;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.15);
+}
+
+    .analysis-prompt h4 {
+        font-size: 18px;
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+
+    .analysis-prompt p {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+/* Allmänt stil för startsidan */
+.welcome-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.welcome-title {
+    font-size: 28px;
+    color: #007bff;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.welcome-text {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+/* Nyckelinformation - "Key info" */
+.key-info {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.info-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    width: 45%;
+}
+
+    .info-card h4 {
+        color: #007bff;
+    }
+
+.btn-secondary {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-secondary:hover {
+        background-color: #218838;
+    }
+
+/* Navigationskort */
+.navigation-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.nav-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+    .nav-card h4 {
+        color: #007bff;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    .nav-card p {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+#costForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+button.btn-primary {
+    margin-top: 15px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    button.btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+.info-text {
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+}
