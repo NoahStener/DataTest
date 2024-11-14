@@ -3,10 +3,10 @@ using DataTest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<DataManipulator>();
 builder.Services.AddScoped<EnergyAnalysisService>();
 builder.Services.AddScoped<MyCsvReader>();
 builder.Services.AddScoped<ApplianceCostCalculator>();
+builder.Services.AddScoped<DataProcessor>();
 
 builder.Services.AddSession();
 // Add services to the container.

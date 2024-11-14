@@ -7,23 +7,19 @@ namespace DataTest.Controllers
     public class EnergyController : Controller
     {
         private readonly EnergyAnalysisService _energyAnalysisService;
-        private readonly DataManipulator dataManipulator;
+        private readonly DataProcessor _dataProcessor;
 
-        public EnergyController(EnergyAnalysisService energyAnalysisService, DataManipulator dataManipulator)
+        public EnergyController(EnergyAnalysisService energyAnalysisService, DataProcessor dataProcessor)
         {
-            _dataManipulator = dataManipulator;
             _energyAnalysisService = energyAnalysisService;
+            _dataProcessor = dataProcessor;
         }
 
-        private readonly DataManipulator _dataManipulator;
+        public ActionResult Index() 
+        {
+            var dailyConsumption = _dataProcessor.GetDailyEnergyConsumption();
+            return View(dailyConsumption);
+        }
 
-        //public IActionResult OneHousehold24Hours()
-        //{
-        //    var dataWithCost = _dataManipulator.GetDataWithCostForOneHousehold24Hours();
-        //    double totalCost = _dataManipulator.GetTotalCostForOneHousehold24Hours();
-
-        //    ViewData["TotalCost"] = totalCost;
-        //    return View(dataWithCost); // Skicka listan med kostnad som modell till vyn
-        //}
     }
 }

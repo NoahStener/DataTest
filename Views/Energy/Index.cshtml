@@ -1,0 +1,54 @@
+﻿@using Newtonsoft.Json
+@model List<DailyEnergyConsumption>
+
+<h2>Weekly Energy Consumption Overview</h2>
+
+<div style="width: 80%; margin: 0 auto;">
+    <canvas id="energyChart"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const energyData = @Html.Raw(JsonConvert.SerializeObject(Model));
+
+            const labels = energyData.map(entry => new Date(entry.Date).toLocaleDateString());
+            const data = energyData.map(entry => entry.TotalEnergyOutlet);
+
+            const ctx = document.getElementById('energyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Energy Consumption (kWh)',
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Energy (kWh)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

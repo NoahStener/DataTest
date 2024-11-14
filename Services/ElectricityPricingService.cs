@@ -40,7 +40,7 @@ public class ElectricityPriceService
                 {
                     pricelist.Add(new ElectricityPrice
                     {
-                        Time = price.time_start,
+                        Time = DateTime.Parse(price.time_start).ToLocalTime(),
                         Price = price.SEK_per_kWh
                     });
                 }

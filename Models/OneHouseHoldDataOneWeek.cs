@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration.Attributes;
 
-namespace DataTest.Data
+namespace DataTest.Models
 {
     public class OneHouseHoldDataOneWeek
     {

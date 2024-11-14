@@ -1,29 +1,8 @@
-﻿@model DataTest.ViewModel.HomeViewModel
-
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
 }
 
 <div>
     <h2>Power Usage</h2>
-    <p>Total Energy Consumption: @Model.TotalEnergyConsumption kWh</p>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date and Time</th>
-                <th>Active Energy Outlet (kWh)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var data in Model.HouseHoldData)
-            {
-                <tr>
-                    <td>@data.AtDateTime</td>
-                    <td>@data.ActiveEnergyOutlet</td>
-                </tr>
-            }
-        </tbody>
-    </table>
 </div>
 

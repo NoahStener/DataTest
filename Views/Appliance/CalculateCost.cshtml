@@ -5,9 +5,14 @@
     ViewData["Title"] = "Calculate Appliance Cost";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="page-title">@ViewData["Title"]</h2>
+
+<script id="electricityPricesData" type="application/json">
+    @Html.Raw(JsonConvert.SerializeObject(Model.ElectricityPrices))
+</script>
 
 <div class="price-chart-container">
+    <h4></h4>
     <div class="price-chart">
         @foreach (var price in Model.ElectricityPrices)
         {
@@ -17,18 +22,17 @@
             </div>
         }
     </div>
-    <input type="range" min="0" max="23" value="0" id="startTimeSlider" class="transparent-slider" onchange="updateStartTime()">
+    <input type="range" min="0" max="23" value="0" id="startTimeSlider" class="transparent-slider" onchange="window.updateStartTime()">
     <span id="startTimeDisplay" class="time-label">Start Time: 00:00</span>
     <input type="hidden" asp-for="StartTime" id="hiddenStartTime" />
 </div>
 
 <!-- Appliance Selection -->
 <div class="appliance-selection">
-    <h4>Select Appliance:</h4>
     <div class="appliance-grid">
         @foreach (var appliance in Model.AvailableAppliances)
         {
-            <div class="appliance-item" onclick="selectAppliance('@appliance.Name', @appliance.PowerInWatts)">
+            <div class="appliance-item" onclick="window.selectAppliance('@appliance.Name', @appliance.PowerInWatts)">
                 <img src="@appliance.ImageUrl" alt="@appliance.Name" class="appliance-image" />
                 <p>@appliance.Name</p>
             </div>
@@ -67,69 +71,6 @@
             </div>
         }
     </div>
-}
-
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let selectedAppliancePower = 0;
-            const electricityPrices = @Html.Raw(JsonConvert.SerializeObject(Model.ElectricityPrices));
-
-            function selectAppliance(name, power) {
-                document.getElementById('selectedAppliance').value = name;
-                selectedAppliancePower = power;
-                updateTotalCost();
-            }
-
-            function updateStartTime() {
-                const startTimeSlider = document.getElementById('startTimeSlider');
-                const startTimeDisplay = document.getElementById('startTimeDisplay');
-                const hour = startTimeSlider.value.padStart(2, '0');
-                startTimeDisplay.textContent = `Start Time: ${hour}:00`;
-
-                const startDateTime = new Date();
-                startDateTime.setHours(hour);
-                startDateTime.setMinutes(0);
-                document.getElementById('hiddenStartTime').value = startDateTime.toISOString();
-                updateTotalCost();
-            }
-
-            document.getElementById('hoursSlider').addEventListener('input', function () {
-                document.getElementById('hoursValue').textContent = `${this.value} hours`;
-                updateTotalCost();
-            });
-
-            document.getElementById('minutesSlider').addEventListener('input', function () {
-                document.getElementById('minutesValue').textContent = `${this.value} minutes`;
-                updateTotalCost();
-            });
-
-            function updateTotalCost() {
-                const hours = parseInt(document.getElementById('hoursSlider').value);
-                const minutes = parseInt(document.getElementById('minutesSlider').value);
-                let totalCost = 0;
-                let startTime = new Date(document.getElementById('hiddenStartTime').value);
-
-                for (let i = 0; i < hours; i++) {
-                    const hour = startTime.getHours();
-                    const priceData = electricityPrices.find(p => new Date(p.Time).getHours() === hour);
-                    const pricePerKwh = priceData ? priceData.Price : 0.4;
-                    const hourlyEnergyConsumptionInKwh = selectedAppliancePower / 1000;
-                    totalCost += hourlyEnergyConsumptionInKwh * pricePerKwh;
-                    startTime.setHours(startTime.getHours() + 1);
-                }
-
-                const priceDataForMinutes = electricityPrices.find(p => new Date(p.Time).getHours() === startTime.getHours());
-                const pricePerKwhForMinutes = priceDataForMinutes ? priceDataForMinutes.Price : 0.4;
-                const energyConsumptionPerMinuteInKwh = (selectedAppliancePower / 1000) / 60;
-                totalCost += energyConsumptionPerMinuteInKwh * minutes * pricePerKwhForMinutes;
-
-                document.getElementById('totalCost').textContent = totalCost.toFixed(2);
-            }
-
-            updateStartTime();
-        });
-    </script>
 }
 
 @functions {
