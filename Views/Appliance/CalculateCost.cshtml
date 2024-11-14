@@ -6,40 +6,144 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<form asp-action="CalculateCost" method="post">
-    <div class="form-group">
-        <label for="Appliance">Select Appliance:</label>
-        <select asp-for="SelectedAppliance" class="form-control">
-            @foreach (var appliance in Model.AvailableAppliances)
-            {
-                <option value="@appliance.Name">@appliance.Name</option>
-            }
-        </select>
+<!-- Formulär för att välja appliance, starttid och varaktighet -->
+<div class="appliance-selection">
+    <label>Välj Aktivitet:</label>
+    <div class="appliance-images">
+        @foreach (var appliance in Model.AvailableAppliances)
+        {
+            <img src="@appliance.ImageUrl" alt="@appliance.Name" class="appliance-image"
+                 data-power="@appliance.PowerInWatts" onclick="selectAppliance('@appliance.Name', @appliance.PowerInWatts)" />
+        }
     </div>
+</div>
+
+<form asp-action="CalculateCost" method="post" id="costForm">
+    <input type="hidden" asp-for="SelectedAppliance" id="selectedAppliance" />
+
     <div class="form-group">
         <label for="StartTime">Start Time:</label>
-        <input asp-for="StartTime" class="form-control" type="datetime-local" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+        <input type="range" min="0" max="23" value="0" id="startTimeSlider" class="form-control" onchange="updateStartTime()">
+        <span id="startTimeDisplay">00:00</span>
+        <input type="hidden" asp-for="StartTime" id="hiddenStartTime" />
     </div>
+
     <div class="form-group">
-        <label for="Hours">Usage Duration (hours):</label>
-        <input asp-for="Hours" class="form-control" type="range" min="1" max="24" value="1" id="hoursSlider" />
-        <span id="hoursValue">1</span> hours
+        <label for="Hours">Usage Duration:</label>
+        <input asp-for="Hours" class="form-control" type="range" min="0" max="24" value="0" id="hoursSlider" />
+        <span id="hoursValue">0</span> hours
+
+        <input type="range" min="0" max="59" value="0" id="minutesSlider" class="form-control" onchange="updateTotalCost()">
+        <span id="minutesValue">0</span> minutes
     </div>
-    <button type="submit" class="btn btn-primary">Calculate Cost</button>
+
+    <h3>Total Cost: <span id="totalCost">0</span> SEK</h3>
+    <button type="submit" class="btn btn-primary">Add Activity</button>
 </form>
 
-@if (Model.TotalCost.HasValue)
+@if (Model.Activities != null && Model.Activities.Any())
 {
-    <h3>Total Cost: @Model.TotalCost.Value.ToString("C")</h3>
+    <h3>Activities</h3>
+    <div id="activityList">
+        @foreach (var activity in Model.Activities)
+        {
+            <div class="activity-card">
+                <h4>@activity.ApplianceName</h4>
+                <p>Duration: @activity.Hours h @activity.Minutes m</p> <!-- Visar både timmar och minuter -->
+                <p>Start Time: @activity.StartTime.ToString("HH:mm")</p>
+                <p>Cost: @activity.Cost.ToString("C")</p>
+            </div>
+        }
+    </div>
 }
 
 @section Scripts {
     <script>
+        let selectedAppliancePower = 0;
+
+        function selectAppliance(name, power) {
+            document.getElementById('selectedAppliance').value = name;
+            selectedAppliancePower = power;
+            updateTotalCost();
+        }
+
+        function updateStartTime() {
+            const startTimeSlider = document.getElementById('startTimeSlider');
+            const startTimeDisplay = document.getElementById('startTimeDisplay');
+            const hour = startTimeSlider.value.padStart(2, '0');
+            startTimeDisplay.textContent = `${hour}:00`;
+
+            const startDateTime = new Date();
+            startDateTime.setHours(hour);
+            startDateTime.setMinutes(0);
+            document.getElementById('hiddenStartTime').value = startDateTime.toISOString();
+            updateTotalCost();
+        }
+
         document.getElementById('hoursSlider').addEventListener('input', function () {
             document.getElementById('hoursValue').textContent = this.value;
+            updateTotalCost();
         });
+
+        document.getElementById('minutesSlider').addEventListener('input', function () {
+            document.getElementById('minutesValue').textContent = this.value;
+            updateTotalCost();
+        });
+
+        function updateTotalCost() {
+            const hours = parseInt(document.getElementById('hoursSlider').value);
+            const minutes = parseInt(document.getElementById('minutesSlider').value);
+            const peakHourPrice = 2.5;
+            const offPeakHourPrice = 1.2;
+
+            let totalCost = 0;
+            let startTime = new Date(document.getElementById('hiddenStartTime').value);
+
+            // Beräkna kostnaden för hela timmar
+            for (let i = 0; i < hours; i++) {
+                const hour = startTime.getHours();
+                const pricePerKwh = (hour >= 6 && hour < 22) ? peakHourPrice : offPeakHourPrice;
+                const hourlyEnergyConsumptionInKwh = selectedAppliancePower / 1000;
+                totalCost += hourlyEnergyConsumptionInKwh * pricePerKwh;
+                startTime.setHours(startTime.getHours() + 1);
+            }
+
+            // Beräkna kostnaden för resterande minuter
+            const pricePerKwh = (startTime.getHours() >= 6 && startTime.getHours() < 22) ? peakHourPrice : offPeakHourPrice;
+            const energyConsumptionPerMinuteInKwh = (selectedAppliancePower / 1000) / 60;
+            totalCost += energyConsumptionPerMinuteInKwh * minutes * pricePerKwh;
+
+            document.getElementById('totalCost').textContent = totalCost.toFixed(2);
+        }
+
+        // Initiera starttid
+        updateStartTime();
     </script>
 }
 
+<style>
+    .appliance-selection {
+        margin-bottom: 15px;
+    }
 
+    .appliance-images img {
+        width: 100px;
+        height: 100px;
+        margin: 5px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 8px;
+    }
 
+        .appliance-images img:hover, .appliance-images img.selected {
+            border-color: blue;
+        }
+
+    .activity-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    }
+</style>

@@ -8,7 +8,7 @@ builder.Services.AddScoped<EnergyAnalysisService>();
 builder.Services.AddScoped<MyCsvReader>();
 builder.Services.AddScoped<ApplianceCostCalculator>();
 
-
+builder.Services.AddSession();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -27,6 +27,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();
