@@ -82,7 +82,7 @@ namespace DataTest.Controllers
                     // Uppdatera modellens aktiviteter
                     model.Activities = activities;
 
-                    model.AvailableAppliances = GetAvailableAppliances();
+                    
                 }
                 else
                 {
@@ -90,7 +90,8 @@ namespace DataTest.Controllers
                     model.Activities = HttpContext.Session.GetObjectFromJson<List<ApplianceCostViewModel.Activity>>("Activities") ?? new List<ApplianceCostViewModel.Activity>();
                 }
 
-               
+                model.AvailableAppliances = GetAvailableAppliances();
+
             }
 
             return View(model);

@@ -2,10 +2,13 @@
 @model DataTest.ViewModel.ApplianceCostViewModel
 
 @{
-    ViewData["Title"] = "Calculate Appliance Cost";
+    ViewData["Title"] = "Home Appliance Energy Cost Estimator";
 }
 
 <h2 class="page-title">@ViewData["Title"]</h2>
+<p class="page-description">
+    Use this tool to view today's electricity prices by the hour and calculate the estimated cost for using specific appliances in your home. Select an appliance, set the duration and start time, and see how much it will cost based on current energy prices.
+</p>
 
 <script id="electricityPricesData" type="application/json">
     @Html.Raw(JsonConvert.SerializeObject(Model.ElectricityPrices))

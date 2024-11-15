@@ -3,15 +3,11 @@
     const electricityPrices = JSON.parse(document.getElementById('electricityPricesData').textContent);
 
     function selectAppliance(name, power, element) {
-        // Ta bort "selected" från alla appliance-items
         document.querySelectorAll('.appliance-item').forEach(item => {
             item.classList.remove('selected');
         });
 
-        // Lägg till "selected" på det valda elementet
         element.classList.add('selected');
-
-        // Sätt vald appliance och uppdatera kostnaden
         document.getElementById('selectedAppliance').value = name;
         selectedAppliancePower = power;
         updateTotalCost();
@@ -29,7 +25,6 @@
         updateTotalCost();
     }
 
-    // Eventlyssnare för uppdatering av timmar och minuter
     document.getElementById('hoursSlider').addEventListener('input', function () {
         document.getElementById('hoursValue').textContent = `${this.value} hours`;
         updateTotalCost();
@@ -60,7 +55,6 @@
             const pricePerKwh = matchingPriceData ? matchingPriceData.Price : 0.4;
             const hourlyEnergyConsumptionInKwh = selectedAppliancePower / 1000;
             totalCost += hourlyEnergyConsumptionInKwh * pricePerKwh;
-
             startTime.setHours(startTime.getHours() + 1);
         }
 
@@ -81,9 +75,8 @@
         document.getElementById('totalCost').textContent = totalCost.toFixed(2);
     }
 
-    // Exponera funktionerna globalt
     window.updateStartTime = updateStartTime;
     window.selectAppliance = selectAppliance;
 
-    updateStartTime(); // Kör initialt för att sätta starttid och kostnad
+    updateStartTime();
 });
